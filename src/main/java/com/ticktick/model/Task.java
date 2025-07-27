@@ -9,6 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import static com.ticktick.constants.TaskConstants.*;
+
 @Getter
 @Setter
 @Builder
@@ -17,8 +19,23 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "tasks")
 
-@NamedQuery(name = TaskConstants.FIND_TASK_BY_USER_ID,
+@NamedQuery(name = FIND_TASK_BY_USER_ID,
         query = "SELECT t FROM Task t WHERE t.user.id = :userId AND t.deleted = false ORDER BY t.createdAt DESC")
+
+@NamedQuery(name = FIND_IMPORTANT_TASK,
+query = "SELECT t FROM Task t WHERE t.user.id = :userId AND t.important = true AND t.deleted = false ORDER BY t.createdAt DESC")
+
+@NamedQuery(name = FIND_URGENT_TASK,
+query = "SELECT t FROM Task t WHERE t.user.id = :userId AND t.urgent = true AND t.deleted = false ORDER BY t.createdAt DESC")
+
+@NamedQuery(name = FIND_TASK_BY_STATUS,
+        query = "SELECT t FROM Task t WHERE t.user.id = :userId AND t.status = :status AND t.deleted = false ORDER BY t.createdAt DESC")
+
+@NamedQuery(name = FIND_OVERDUE_TASK,
+query = "SELECT t FROM Task t WHERE t.user.id = :userId AND t.dueDate < :date AND t.deleted = false ORDER BY t.createdAt DESC")
+
+@NamedQuery(name = FIND_DELETED_TASK ,
+        query = "SELECT t FROM Task t WHERE t.user.id = :userId AND t.deleted = true ORDER BY t.createdAt DESC")
 
 public class Task {
 
