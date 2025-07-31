@@ -35,4 +35,17 @@ public class TaskMapper {
                 .build();
     }
 
+    public Task updateTask(Task exitsingTask, TaskRequest taskRequest){
+
+        exitsingTask.setTitle(taskRequest.title());
+        exitsingTask.setDescription(taskRequest.description());
+        exitsingTask.setImportant(taskRequest.important());
+        exitsingTask.setUrgent(taskRequest.urgent());
+        exitsingTask.setDueDate(taskRequest.dueDate());
+        exitsingTask.setFocusTime(taskRequest.focusTime());
+        exitsingTask.setStatus(taskRequest.status());
+
+        return exitsingTask;
+    }
+
 }
