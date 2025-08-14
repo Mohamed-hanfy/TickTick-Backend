@@ -1,5 +1,6 @@
 package com.ticktick.service;
 
+import com.ticktick.constants.JwtConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -15,10 +16,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.ticktick.constants.JwtConstants.*;
+
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY = "da6a980067da67a55cd6551fb3b6f2d6a87b03862a33852916ab1b9fbabc4dc0";
+
 
     public String extractUserEmail(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -40,7 +43,7 @@ public class JwtService {
                 .setClaims(extractClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION_MS))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

@@ -7,10 +7,13 @@ import com.ticktick.enums.Role;
 import com.ticktick.model.User;
 import com.ticktick.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +24,11 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    @Transactional
     public AuthenticationResponse register(RegisterRequest request) {
+        if(userRepository.findByEmail(request.email()).isPresent()){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email is already in use!");
+        }
         var user = User.builder()
                 .firstName(request.firstName())
                 .lastName(request.lastName())

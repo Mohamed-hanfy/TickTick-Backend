@@ -38,7 +38,9 @@ public class User implements UserDetails {
     private String photo;
 
     @Enumerated(EnumType.STRING)
-    private Role role;
+    @Builder.Default
+
+    private Role role = Role.USER;
 
     @CreationTimestamp
     private Date createdAt;
