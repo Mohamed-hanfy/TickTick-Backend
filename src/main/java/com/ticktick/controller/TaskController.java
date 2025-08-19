@@ -7,8 +7,10 @@ import com.ticktick.service.TaskService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -22,105 +24,108 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<List<TaskResponse>> getTasksByUserId(Integer userId) {
-        return ResponseEntity.ok(taskService.findAllTasksByUserId(userId));
+    @GetMapping
+    public ResponseEntity<List<TaskResponse>> getTasksByUserId(Authentication connectedUser) {
+        return ResponseEntity.ok(taskService.findAllTasksByUserId(connectedUser));
     }
 
     @PostMapping
     public ResponseEntity<Integer> save(@Valid @RequestBody TaskRequest taskRequest,
-                                        Integer userId) {
-        return ResponseEntity.ok(taskService.save(taskRequest, userId));
+                                        Authentication connectedUser) {
+        return ResponseEntity.ok(taskService.save(taskRequest, connectedUser));
     }
 
     @PutMapping("/bulk")
     public ResponseEntity<List<Integer>> bulkTasks(@Valid @RequestBody List<TaskRequest> taskRequests,
-                                                        @RequestParam Integer userId) {
-        List<Integer> bulkTasks = taskService.bulkTasks(taskRequests, userId);
+                                                   Authentication connectedUser) {
+        List<Integer> bulkTasks = taskService.bulkTasks(taskRequests, connectedUser);
         return ResponseEntity.ok(bulkTasks);
     }
 
     @GetMapping("/task/{taskId}")
-    public ResponseEntity<TaskResponse> getTaskById(Integer taskId) {
-        return ResponseEntity.ok(taskService.getTaskById(taskId));
+    public ResponseEntity<TaskResponse> getTaskById(@PathVariable Integer taskId, Authentication connectedUser) {
+        return ResponseEntity.ok(taskService.getTaskById(taskId, connectedUser));
     }
 
     @PutMapping("/{taskId}")
     public ResponseEntity<TaskResponse> updateTask(@PathVariable Integer taskId,
                                                    @Valid @RequestBody TaskRequest taskRequest,
-                                                   @RequestParam Integer userId) {
-        return ResponseEntity.ok(taskService.updateTask(taskId, taskRequest, userId));
+                                                   Authentication connectedUser) {
+        return ResponseEntity.ok(taskService.updateTask(taskId, taskRequest, connectedUser));
     }
 
 
     @PatchMapping("/{taskId}/delete")
-    public ResponseEntity<Void> deleteTaskById(Integer taskId) {
-        taskService.markAsDeleted(taskId);
+    public ResponseEntity<Void> deleteTaskById(@PathVariable Integer taskId, Authentication connectedUser) {
+        taskService.markAsDeleted(taskId, connectedUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{taskId}/complete")
-    public ResponseEntity<Void> markAsComplete(@PathVariable Integer taskId) {
-        taskService.markAsComplete(taskId);
+    public ResponseEntity<Void> markAsComplete(@PathVariable Integer taskId, Authentication connectedUser) {
+        taskService.markAsComplete(taskId, connectedUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{taskId}/important")
-    public ResponseEntity<Void> markAsImportant(@PathVariable Integer taskId) {
-        taskService.markAsImportant(taskId);
+    public ResponseEntity<Void> markAsImportant(@PathVariable Integer taskId, Authentication connectedUser) {
+        taskService.markAsImportant(taskId, connectedUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{taskId}/urgent")
-    public ResponseEntity<Void> markAsUrgent(@PathVariable Integer taskId) {
-        taskService.markAsUrgent(taskId);
+    public ResponseEntity<Void> markAsUrgent(@PathVariable Integer taskId, Authentication connectedUser) {
+        taskService.markAsUrgent(taskId, connectedUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{taskId}/status")
     public ResponseEntity<Void> updateStatus(@PathVariable Integer taskId,
-                                             @RequestParam TaskStatus status) {
-        taskService.updateStatus(taskId, status);
+                                             @RequestParam TaskStatus status,
+                                             Authentication connectedUser) {
+        taskService.updateStatus(taskId, status, connectedUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{taskId}/set-due-date")
     public ResponseEntity<Void> updateDueDate(@PathVariable Integer TaskId,
-                                              @RequestParam LocalDate dueDate) {
-        taskService.updateDueDate(TaskId, dueDate);
+                                              @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate,
+                                              Authentication connectedUser) {
+        taskService.updateDueDate(TaskId, dueDate, connectedUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PatchMapping("/{taskId}/set-focus-time")
     public ResponseEntity<Void> updateFocusTime(@PathVariable Integer taskId,
-                                                @RequestParam Integer focusTime) {
-        taskService.updateFocusTime(taskId, focusTime);
+                                                @RequestParam Integer focusTime,
+                                                Authentication connectedUser) {
+        taskService.updateFocusTime(taskId, focusTime, connectedUser);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/important")
-    public ResponseEntity<List<TaskResponse>> findImportantTask(Integer userId) {
-        return ResponseEntity.ok(taskService.findImportantTask(userId));
+    public ResponseEntity<List<TaskResponse>> findImportantTask(Authentication connectedUser) {
+        return ResponseEntity.ok(taskService.findImportantTask(connectedUser));
     }
 
     @GetMapping("/urgent")
-    public ResponseEntity<List<TaskResponse>> findUrgentTask(Integer userId) {
-        return ResponseEntity.ok(taskService.findUrgentTask(userId));
+    public ResponseEntity<List<TaskResponse>> findUrgentTask(Authentication connectedUser) {
+        return ResponseEntity.ok(taskService.findUrgentTask(connectedUser));
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<List<TaskResponse>> findTaskByStatus(Integer userId, TaskStatus status) {
-        return ResponseEntity.ok(taskService.findTaskByStatus(userId, status));
+    public ResponseEntity<List<TaskResponse>> findTaskByStatus(@PathVariable TaskStatus status, Authentication connectedUser) {
+        return ResponseEntity.ok(taskService.findTaskByStatus( connectedUser,status));
     }
 
     @GetMapping("/overdue")
-    public ResponseEntity<List<TaskResponse>> findOverDueTask(Integer userId) {
-        return ResponseEntity.ok(taskService.findOverDueTask(userId));
+    public ResponseEntity<List<TaskResponse>> findOverDueTask(Authentication connectedUser) {
+        return ResponseEntity.ok(taskService.findOverDueTask(connectedUser));
     }
 
     @GetMapping("/deleted")
-    public ResponseEntity<List<TaskResponse>> findDeletedTasks(Integer userId) {
-        return ResponseEntity.ok(taskService.findDeletedTasks(userId));
+    public ResponseEntity<List<TaskResponse>> findDeletedTasks(Authentication connectedUser) {
+        return ResponseEntity.ok(taskService.findDeletedTasks(connectedUser));
     }
 
 }
